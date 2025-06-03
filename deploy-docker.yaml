@@ -8,20 +8,14 @@
     workspace: "{{ lookup('env', 'WORKSPACE') | default('.') }}"
 
   tasks:
-    - name: Copy WAR file to standard location
-      copy:
-        src: "{{ workspace }}/target/XYZtechnologies-1.0.war"
-        dest: "{{ workspace }}/xyz.war"
-        remote_src: yes
-
     - name: Build Docker image
       community.docker.docker_image:
         name: "{{ image_name }}"
         tag: "{{ build_number }}"
         build:
           path: "{{ workspace }}"
+        state: build
         push: no
-
 
     - name: Tag Docker image as latest
       command: docker tag {{ image_name }}:{{ build_number }} {{ image_name }}:latest
