@@ -34,12 +34,20 @@ pipeline {
 
         stage('Ansible Build & Push Docker') {
             steps {
-                ansiblePlaybook(
-                    playbook: 'deploy-docker.yaml',
-                    inventory: 'localhost,',
-                    extras: '-c local',
-                    credentialsId: 'ansible-ssh-key'
-                )
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )
+                ]) {
+                    ansiblePlaybook(
+                        playbook: 'deploy-docker.yaml',
+                        inventory: 'localhost,',
+                        extras: "-c local -e dockerhub_user=${DOCKERHUB_USERNAME} -e dockerhub_pass=${DOCKERHUB_PASSWORD}",
+                        credentialsId: 'ansible-ssh-key'
+                    )
+                }
             }
         }
 
