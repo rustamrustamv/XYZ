@@ -4,8 +4,8 @@
   connection: local
   vars:
     image_name: "rustamrustamov/xyz_tech"
-    build_number: "{{ lookup('env','BUILD_NUMBER') | default('latest') }}"
-    workspace: "{{ lookup('env','WORKSPACE') | default('.') }}"
+    build_number: "{{ lookup('env', 'BUILD_NUMBER') | default('latest') }}"
+    workspace: "{{ lookup('env', 'WORKSPACE') | default('.') }}"
 
   tasks:
     - name: Copy WAR file to standard location
@@ -16,10 +16,9 @@
 
     - name: Build Docker image
       community.docker.docker_image:
-        build:
-          path: "{{ workspace }}"
         name: "{{ image_name }}"
         tag: "{{ build_number }}"
+        source: "{{ workspace }}"
         push: no
 
     - name: Tag Docker image as latest
