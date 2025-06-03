@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "rustamrustamov/xyz_tech"
+    }
+
+    stages {
+        stage('Code Checkout') {
+            steps {
+                git url: 'https://github.com/rustamrustamv/XYZ.git', 
+                    credentialsId: 'git-ssh-key',
+                    branch: 'master'
+            }
+        }
+
+        stage('Code Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('Ansible Build & Push Docker') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'deploy-docker.yaml',
+                    inventory: 'localhost,',
+                    extras: '-c local',
+                    credentialsId: 'ansible-ssh-key'
+                )
+            }
+        }
+
+        stage('Ansible Deploy Kubernetes') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'deploy-k8s.yaml',
+                    inventory: 'localhost,',
+                    extras: '-c local',
+                    credentialsId: 'ansible-ssh-key'
+                )
+            }
+        }
+    }
+}

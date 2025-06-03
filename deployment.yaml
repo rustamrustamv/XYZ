@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: abc-tech-deploy
+  name: xyz-tech-deploy
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: abc-tech
+      app: xyz-tech
   template:
     metadata:
       labels:
-        app: abc-tech
+        app: xyz-tech
     spec:
       containers:
-      - name: abc-app
-        image: rustamrustamov/abc_tech:latest
+      - name: xyz-app
+        image: rustamrustamov/xyz_tech:latest
         ports:
         - containerPort: 8080
         resources:
