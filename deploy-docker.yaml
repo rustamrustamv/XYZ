@@ -1,3 +1,4 @@
+---
 - name: Build and push Docker image
   hosts: localhost
   connection: local
@@ -5,8 +6,8 @@
     image_name: "rustamrustamov/xyz_tech"
     build_number: "{{ lookup('env', 'BUILD_NUMBER') | default('latest') }}"
     workspace: "{{ lookup('env', 'WORKSPACE') | default('.') }}"
-    dockerhub_user: "{{ dockerhub_user }}"
-    dockerhub_pass: "{{ dockerhub_pass }}"
+    dockerhub_user: "{{ dockerhub_user | default('') }}"
+    dockerhub_pass: "{{ dockerhub_pass | default('') }}"
 
   tasks:
     - name: Login to DockerHub
@@ -18,6 +19,7 @@
       community.docker.docker_image:
         name: "{{ image_name }}"
         tag: "{{ build_number }}"
+        source: build
         build:
           path: "{{ workspace }}"
         push: no
@@ -29,10 +31,12 @@
       community.docker.docker_image:
         name: "{{ image_name }}"
         tag: "{{ build_number }}"
+        source: local
         push: yes
 
     - name: Push Docker image with latest tag
       community.docker.docker_image:
         name: "{{ image_name }}"
         tag: latest
+        source: local
         push: yes
