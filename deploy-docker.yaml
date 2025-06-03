@@ -33,3 +33,41 @@
         tag: latest
         push: yes
         state: present
+
+
+
+---
+- name: Build and push Docker image
+  hosts: localhost
+  connection: local
+  vars:
+    image_name: "rustamrustamov/xyz_tech"
+    build_number: "{{ lookup('env', 'BUILD_NUMBER') | default('latest') }}"
+    workspace: "{{ lookup('env', 'WORKSPACE') | default('.') }}"
+
+  tasks:
+    - name: Build Docker image
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        tag: "{{ build_number }}"
+        source: build               # <-- explicitly specify build source here
+        build:
+          path: "{{ workspace }}"
+        push: no
+
+    - name: Tag Docker image as latest
+      command: docker tag {{ image_name }}:{{ build_number }} {{ image_name }}:latest
+
+    - name: Push Docker image with build number tag
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        tag: "{{ build_number }}"
+        source: local               # <-- pushing local image
+        push: yes
+
+    - name: Push Docker image with latest tag
+      community.docker.docker_image:
+        name: "{{ image_name }}"
+        tag: latest
+        source: local
+        push: yes
