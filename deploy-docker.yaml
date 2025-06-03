@@ -12,11 +12,10 @@
       community.docker.docker_image:
         name: "{{ image_name }}"
         tag: "{{ build_number }}"
-        source: build               # <-- explicitly specify build source here
+        source: build
         build:
           path: "{{ workspace }}"
         push: no
-        become: yes
 
     - name: Tag Docker image as latest
       command: docker tag {{ image_name }}:{{ build_number }} {{ image_name }}:latest
@@ -25,9 +24,8 @@
       community.docker.docker_image:
         name: "{{ image_name }}"
         tag: "{{ build_number }}"
-        source: local               # <-- pushing local image
+        source: local
         push: yes
-        become: yes
 
     - name: Push Docker image with latest tag
       community.docker.docker_image:
@@ -35,4 +33,3 @@
         tag: latest
         source: local
         push: yes
-        become: yes
