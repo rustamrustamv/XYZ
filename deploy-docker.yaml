@@ -14,8 +14,8 @@
         tag: "{{ build_number }}"
         build:
           path: "{{ workspace }}"
-        state: build
         push: no
+        state: present   # <-- use present, not build
 
     - name: Tag Docker image as latest
       command: docker tag {{ image_name }}:{{ build_number }} {{ image_name }}:latest
@@ -25,9 +25,11 @@
         name: "{{ image_name }}"
         tag: "{{ build_number }}"
         push: yes
+        state: present
 
     - name: Push Docker image with latest tag
       community.docker.docker_image:
         name: "{{ image_name }}"
         tag: latest
         push: yes
+        state: present
