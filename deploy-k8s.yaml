@@ -1,0 +1,20 @@
+---
+- name: Deploy app to Kubernetes
+  hosts: localhost
+  connection: local
+  vars:
+    kubeconfig: "{{ lookup('env','KUBECONFIG') | default('~/.kube/config') }}"
+    workspace: "{{ lookup('env','WORKSPACE') | default('.') }}"
+
+  tasks:
+    - name: Apply Kubernetes Deployment
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        src: "{{ workspace }}/deployment.yaml"
+
+    - name: Apply Kubernetes Service
+      kubernetes.core.k8s:
+        kubeconfig: "{{ kubeconfig }}"
+        state: present
+        src: "{{ workspace }}/service.yaml"
