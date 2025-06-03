@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: xyz-tech-deploy
+  namespace: default
 spec:
   replicas: 3
   selector:
@@ -17,8 +18,3 @@ spec:
         image: rustamrustamov/xyz_tech:latest
         ports:
         - containerPort: 8080
-        resources:
-          requests:
-            ephemeral-storage: "50Mi"
-          limits:
-            ephemeral-storage: "200Mi"
