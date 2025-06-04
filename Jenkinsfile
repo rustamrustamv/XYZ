@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "rustamrustamov/xyz_tech"
-		KUBECONFIG_PATH = "/home/ubuntu/.kube/kubeconfig" 
+		KUBECONFIG = "/home/ubuntu/.kube/kubeconfig" 
     }
 
     stages {
@@ -34,6 +34,15 @@ pipeline {
                 sh 'mv target/XYZtechnologies-1.0.war target/xyz.war'
             }
         }
+		stage('Debug') {
+			steps {
+				script {
+					sh 'echo "Checking kubeconfig path"'
+					sh 'ls -l /home/ubuntu/.kube/kubeconfig'   // Check if the kubeconfig file is present
+					sh 'cat /home/ubuntu/.kube/kubeconfig'     // Display the content of kubeconfig (only for debugging)
+				}	
+			}
+		}
 
         stage('Ansible Build & Push Docker') {
             steps {
