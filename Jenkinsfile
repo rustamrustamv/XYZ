@@ -29,6 +29,8 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'mvn package'
+                // Rename the WAR file to xyz.war
+                sh 'mv target/XYZtechnologies-1.0.war target/xyz.war'
             }
         }
 
