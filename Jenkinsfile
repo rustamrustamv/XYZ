@@ -61,7 +61,8 @@ pipeline {
 						inventory: 'localhost,',
 						extras: '-c local',
 						credentialsId: 'ansible-ssh-key'
-                )
+                    )
+                }
             }
         }
     }
