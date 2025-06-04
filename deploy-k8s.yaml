@@ -3,7 +3,7 @@
   hosts: localhost
   connection: local
   vars:
-    kubeconfig: "{{ lookup('env','WORKSPACE') + '/kubeconfig.yaml' }}"
+    kubeconfig: "/home/ubuntu/.kube/kubeconfig"
     workspace: "{{ lookup('env','WORKSPACE') | default('.') }}"
 
   tasks:
