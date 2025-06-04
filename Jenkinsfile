@@ -55,11 +55,12 @@ pipeline {
 
         stage('Ansible Deploy Kubernetes') {
             steps {
-                ansiblePlaybook(
-                    playbook: 'deploy-k8s.yaml',
-                    inventory: 'localhost,',
-                    extras: '-c local',
-                    credentialsId: 'ansible-ssh-key'
+				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+					ansiblePlaybook(
+						playbook: 'deploy-k8s.yaml',
+						inventory: 'localhost,',
+						extras: '-c local',
+						credentialsId: 'ansible-ssh-key'
                 )
             }
         }
