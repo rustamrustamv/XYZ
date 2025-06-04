@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "rustamrustamov/xyz_tech"
+		KUBECONFIG_PATH = "/home/ubuntu/.kube/kubeconfig" 
     }
 
     stages {
