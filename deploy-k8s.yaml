@@ -3,8 +3,9 @@
   hosts: localhost
   connection: local
   vars:
-    kubeconfig: "{{ kubeconfig | default('/home/ubuntu/.kube/config') }}"
-    workspace: "{{ lookup('env','WORKSPACE') | default('.') }}"
+    
+    kubeconfig: "/home/ubuntu/.kube/kubeconfig"  
+    workspace: "{{ lookup('env', 'WORKSPACE') | default('.') }}"
 
   tasks:
     - name: Apply Kubernetes Deployment
