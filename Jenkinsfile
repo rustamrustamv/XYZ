@@ -10,7 +10,7 @@ pipeline {
         stage('Code Checkout') {
             steps {
                 git url: 'https://github.com/rustamrustamv/XYZ.git', 
-                    credentialsId: 'git-ssh-key',
+                    credentialsId: 'git',
                     branch: 'master'
             }
         }
@@ -57,7 +57,7 @@ pipeline {
                         playbook: 'deploy-docker.yaml',
                         inventory: 'localhost,',
                         extras: "-c local -e dockerhub_user=${DOCKERHUB_USERNAME} -e dockerhub_pass=${DOCKERHUB_PASSWORD}",
-                        credentialsId: 'ansible-ssh-key'
+                        credentialsId: 'git'
                     )
                 }
             }
@@ -70,7 +70,7 @@ pipeline {
 						playbook: 'deploy-k8s.yaml',
 						inventory: 'localhost,',
 						extras: '-c local',
-						credentialsId: 'ansible-ssh-key'
+						credentialsId: 'git'
                     )
                 }
             }
