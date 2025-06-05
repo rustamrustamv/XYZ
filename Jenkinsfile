@@ -8,55 +8,49 @@ pipeline {
     stages {
         stage('Code Checkout') {
             steps {
-                git url: 'https://github.com/rustamrustamv/XYZ.git', 
+                git url: 'https://github.com/rustamrustamv/XYZ.git',
                     credentialsId: 'git',
                     branch: 'master'
             }
         }
 
         stage('Code Compile') {
-            steps {
-                sh 'mvn compile'
-            }
+            steps { sh 'mvn -B compile' }
         }
 
         stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
+            steps { sh 'mvn -B test' }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn package'
-                // Rename the WAR file to xyz.war
-                sh 'mv target/XYZtechnologies-1.0.war target/xyz.war'
+                sh 'mvn -B package'
+                sh '''
+                  WAR=target/XYZtechnologies-1.0.war
+                  [ -f "$WAR" ] || exit 1
+                  mv "$WAR" target/xyz.war
+                '''
             }
         }
-		stage('Debug') {
-			steps {
-				script {
-					sh 'echo "Checking kubeconfig path"'
-					sh 'ls -l /home/ubuntu/.kube/kubeconfig'   // Check if the kubeconfig file is present
-					sh 'cat /home/ubuntu/.kube/kubeconfig'     // Display the content of kubeconfig (only for debugging)
-				}	
-			}
-		}
+
+        stage('Debug') {
+            when { expression { params.DEBUG_KUBE ?: false } }
+            steps { sh 'ls -l /home/ubuntu/.kube/kubeconfig' }
+        }
 
         stage('Ansible Build & Push Docker') {
             steps {
                 withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub',
-                        usernameVariable: 'DOCKERHUB_USERNAME',
-                        passwordVariable: 'DOCKERHUB_PASSWORD'
-                    )
+                    usernamePassword(credentialsId: 'dockerhub',
+                                     usernameVariable: 'DOCKERHUB_USERNAME',
+                                     passwordVariable: 'DOCKERHUB_PASSWORD')
                 ]) {
                     ansiblePlaybook(
-                        playbook: 'deploy-docker.yaml',
-                        inventory: 'localhost,',
-                        extras: "-c local -e dockerhub_user=${DOCKERHUB_USERNAME} -e dockerhub_pass=${DOCKERHUB_PASSWORD}",
-                        credentialsId: 'git'
+                        playbook  : 'deploy-docker.yaml',
+                        inventory : 'localhost,',
+                        extras    : "-c local "
+                                  + "-e dockerhub_user=${DOCKERHUB_USERNAME} "
+                                  + "-e dockerhub_pass=${DOCKERHUB_PASSWORD}"
                     )
                 }
             }
@@ -64,15 +58,19 @@ pipeline {
 
         stage('Ansible Deploy Kubernetes') {
             steps {
-				withCredentials([file(credentialsId: 'kubeconfig')]) {
-					ansiblePlaybook(
-						playbook: 'deploy-k8s.yaml',
-						inventory: 'localhost,',
-						extras: '-c local',
-						credentialsId: 'git'
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KCFG')]) {
+                    sh 'cp $KCFG $WORKSPACE/kubeconfig'
+                    ansiblePlaybook(
+                        playbook  : 'deploy-k8s.yaml',
+                        inventory : 'localhost,',
+                        extras    : "-c local -e kubeconfig=$WORKSPACE/kubeconfig"
                     )
                 }
             }
         }
+    }
+
+    post {
+        always { archiveArtifacts artifacts: 'target/xyz.war', fingerprint: true }
     }
 }
