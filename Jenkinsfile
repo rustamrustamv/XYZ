@@ -63,7 +63,7 @@ pipeline {
                     ansiblePlaybook(
                         playbook  : 'deploy-k8s.yaml',
                         inventory : 'localhost,',
-                        extras    : "-c local -e kubeconfig=$WORKSPACE/kubeconfig"
+                        extras    : "-c local -e kubeconfig=${KCFG}"
                     )
                 }
             }
