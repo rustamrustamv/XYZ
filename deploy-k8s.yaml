@@ -5,7 +5,7 @@
   vars:
     kubeconfig: "{{ lookup('env', 'kubeconfig') }}"
     workspace : "{{ lookup('env', 'WORKSPACE') | default('.') }}"
-    ansible_python_interpreter : "/usr/bin/python3"
+    ansible_python_interpreter : /usr/bin/python3
 
   tasks:
     - name: Apply Deployment
