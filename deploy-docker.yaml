@@ -6,6 +6,7 @@
     ansible_python_interpreter: /usr/bin/python3
     image_name: "rustamrustamov/xyz_tech"
     build_number: "{{ lookup('env', 'BUILD_NUMBER') | default('latest') }}"
+    kubeconfig: "/var/snap/microk8s/current/credentials/client.config"
     workspace: "{{ lookup('env', 'WORKSPACE') | default('.') }}"
     dockerhub_user: "{{ dockerhub_user | default('') }}"
     dockerhub_pass: "{{ dockerhub_pass | default('') }}"

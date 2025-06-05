@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         IMAGE_NAME = "rustamrustamov/xyz_tech"
-		KUBECONFIG = "/home/ubuntu/.kube/kubeconfig" 
     }
 
     stages {
@@ -65,7 +64,7 @@ pipeline {
 
         stage('Ansible Deploy Kubernetes') {
             steps {
-				withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+				withCredentials([file(credentialsId: 'kubeconfig')]) {
 					ansiblePlaybook(
 						playbook: 'deploy-k8s.yaml',
 						inventory: 'localhost,',
