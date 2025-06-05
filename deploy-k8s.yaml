@@ -3,21 +3,18 @@
   hosts: localhost
   connection: local
   vars:
-    kubeconfig: "/var/snap/microk8s/current/credentials/client.config"  
-    workspace: "{{ lookup('env', 'WORKSPACE') | default('.') }}"
+    kubeconfig: "{{ lookup('env', 'kubeconfig') }}"
+    workspace : "{{ lookup('env', 'WORKSPACE') | default('.') }}"
 
   tasks:
-    - name: Apply Kubernetes Deployment
+    - name: Apply Deployment
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig }}"
-        state: present
-        src: "{{ workspace }}/deployment.yaml"
-        remote_src: true  
-      command: kubectl apply -f "{{ workspace }}/deployment.yaml" -v=10  # Adding verbose output
+        state     : present
+        src       : "{{ workspace }}/deployment.yaml"
 
-    - name: Apply Kubernetes Service
+    - name: Apply Service
       kubernetes.core.k8s:
         kubeconfig: "{{ kubeconfig }}"
-        state: present
-        src: "{{ workspace }}/service.yaml"
-      command: kubectl apply -f "{{ workspace }}/service.yaml" -v=10  # Adding verbose output
+        state     : present
+        src       : "{{ workspace }}/service.yaml"
