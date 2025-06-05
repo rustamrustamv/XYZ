@@ -6,6 +6,7 @@ pipeline {
     }
 
     stages {
+
         stage('Code Checkout') {
             steps {
                 git url: 'https://github.com/rustamrustamv/XYZ.git',
@@ -41,9 +42,11 @@ pipeline {
         stage('Ansible Build & Push Docker') {
             steps {
                 withCredentials([
-                    usernamePassword(credentialsId: 'dockerhub',
-                                     usernameVariable: 'DOCKERHUB_USERNAME',
-                                     passwordVariable: 'DOCKERHUB_PASSWORD')
+                    usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKERHUB_USERNAME',
+                        passwordVariable: 'DOCKERHUB_PASSWORD'
+                    )
                 ]) {
                     ansiblePlaybook(
                         playbook  : 'deploy-docker.yaml',
@@ -59,7 +62,6 @@ pipeline {
         stage('Ansible Deploy Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KCFG')]) {
-                    sh 'cp $KCFG $WORKSPACE/kubeconfig'
                     ansiblePlaybook(
                         playbook  : 'deploy-k8s.yaml',
                         inventory : 'localhost,',
