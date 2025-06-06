@@ -59,17 +59,21 @@ spec:
     targetPort: 9100
 ---
 # ---------------------------------------------------------------------------
-# Prometheus ConfigMap – uses k8s service-discovery
+# Prometheus ConfigMap – now includes recording-rules
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-cfg
   namespace: monitoring
 data:
+  # ---------- main config ----------
   prometheus.yml: |
     global:
       scrape_interval: 15s
-      evaluation_interval: 15s
+      evaluation_interval: 15s       # ← make Prometheus evaluate rules
+
+    rule_files:
+      - /etc/prometheus/node.rules.yml   # <-- NEW: tell Prometheus to load rules
 
     scrape_configs:
     - job_name: prometheus
@@ -80,15 +84,36 @@ data:
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
-      # keep only pods with label app=node-exporter
       - source_labels: [ __meta_kubernetes_pod_label_app ]
         regex: node-exporter
         action: keep
-      # replace pod IP:port -> podIP:9100
       - source_labels: [ __address__ ]
         regex: (.+):\d+
         replacement: $1:9100
         target_label: __address__
+
+  # ---------- recording rules ----------
+  node.rules.yml: |
+    groups:
+    - name: node.rules
+      interval: 30s
+      rules:
+      - record: node:cpu_total_percent:1m
+        expr: 100 - avg(rate(node_cpu_seconds_total{mode="idle"}[1m])) by (instance) * 100
+      - record: node:cpu_user_percent:1m
+        expr: rate(node_cpu_seconds_total{mode="user"}[1m]) * 100
+      - record: node:cpu_system_percent:1m
+        expr: rate(node_cpu_seconds_total{mode="system"}[1m]) * 100
+      - record: node:cpu_iowait_percent:1m
+        expr: rate(node_cpu_seconds_total{mode="iowait"}[1m]) * 100
+      - record: node:memory_used_percent
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+              / node_memory_MemTotal_bytes * 100
+      - record: node:net_rx_bytes_per_sec:1m
+        expr: rate(node_network_receive_bytes_total{device!~"lo|veth.*"}[1m])
+      - record: node:net_tx_bytes_per_sec:1m
+        expr: rate(node_network_transmit_bytes_total{device!~"lo|veth.*"}[1m])
+
 ---
 # ---------------------------------------------------------------------------
 # Prometheus – single replica, persistent storage
